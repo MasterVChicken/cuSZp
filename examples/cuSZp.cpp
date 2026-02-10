@@ -163,6 +163,8 @@ int main(int argc, char* argv[])
     size_t nbEle = 0;
     size_t cmpSize = 0;
     int status=0;
+    // For max relative error
+    double max_linf = 0;
     if(dataType == CUSZP_TYPE_FLOAT) {
         oriData = (void*)readFloatData_Yafan(oriFilePath, &nbEle, &status);
         decData = (void*)malloc(nbEle*sizeof(float));
@@ -170,6 +172,22 @@ int main(int argc, char* argv[])
         if(processingDim != 1 && nbEle != (size_t)dims.x * (size_t)dims.y * (size_t)dims.z) {
             fprintf(stderr, "Error: The number of elements in the original data does not match the dimensions\n");
             return 1;
+        }
+
+        // Calculate L-INF
+        float* oriData_f32 = (float*)oriData;
+        float max_val = oriData_f32[0];
+        float min_val = oriData_f32[0];
+        for(size_t i=0; i<nbEle; i++) {
+            if(oriData_f32[i]>max_val)
+                max_val = oriData_f32[i];
+            else if(oriData_f32[i]<min_val)
+                min_val = oriData_f32[i];
+        }
+        if(fabs(max_val)>fabs(min_val)){
+            max_linf = fabs(max_val);
+        }else{
+            max_linf = fabs(min_val);
         }
         
         // Value range calculation f32
@@ -193,6 +211,22 @@ int main(int argc, char* argv[])
         if(processingDim != 1 && nbEle != (size_t)dims.x * (size_t)dims.y * (size_t)dims.z) {
             fprintf(stderr, "Error: The number of elements in the original data does not match the dimensions\n");
             return 1;
+        }
+
+        // Calculate L-INF
+        float* oriData_f64 = (float*)oriData;
+        float max_val = oriData_f64[0];
+        float min_val = oriData_f64[0];
+        for(size_t i=0; i<nbEle; i++) {
+            if(oriData_f64[i]>max_val)
+                max_val = oriData_f64[i];
+            else if(oriData_f64[i]<min_val)
+                min_val = oriData_f64[i];
+        }
+        if(fabs(max_val)>fabs(min_val)){
+            max_linf = fabs(max_val);
+        }else{
+            max_linf = fabs(min_val);
         }
 
         // Value range calculation f64
@@ -273,6 +307,8 @@ int main(int argc, char* argv[])
         printf("cuSZp compression ratio: %f\n\n", (nbEle*sizeof(double)/1024.0/1024.0)/(cmpSize*sizeof(unsigned char)/1024.0/1024.0));
     }
 
+    // MAX RELATIVE ERROR
+    double max_diff = 0;
     // Error check
     if(dataType == CUSZP_TYPE_FLOAT) {
         cudaMemcpy(decData, d_decData, sizeof(float)*nbEle, cudaMemcpyDeviceToHost);
@@ -285,6 +321,9 @@ int main(int argc, char* argv[])
         if(dataType == CUSZP_TYPE_FLOAT) {
             float* oriData_f32 = (float*)oriData;
             float* decData_f32 = (float*)decData;
+            if(fabs(oriData_f32[i]-decData_f32[i])>max_diff){
+                max_diff = fabs(oriData_f32[i]-decData_f32[i]);
+            }
             if(fabs(oriData_f32[i]-decData_f32[i]) > errorBound*1.1) {
                 not_bound++;
                 // printf("not bound: %zu oriData: %f, decData: %f, errors: %f, bound: %f\n", i, ((float*)oriData)[i], ((float*)decData)[i], fabs(((float*)oriData)[i]-((float*)decData)[i]), errorBound);
@@ -293,12 +332,16 @@ int main(int argc, char* argv[])
         else if(dataType == CUSZP_TYPE_DOUBLE) {
             double* oriData_f64 = (double*)oriData;
             double* decData_f64 = (double*)decData;
+            if(fabs(oriData_f64[i]-decData_f64[i])>max_diff){
+                max_diff = fabs(oriData_f64[i]-decData_f64[i]);
+            }
             if(fabs(oriData_f64[i]-decData_f64[i]) > errorBound*1.1) {
                 not_bound++;
                 // printf("not bound: %zu oriData: %f, decData: %f, errors: %f, bound: %f\n", i, ((double*)oriData)[i], ((double*)decData)[i], fabs(((double*)oriData)[i]-((double*)decData)[i]), errorBound);
             }
         }
     }
+    printf("L-INF relative error: %f\n", max_diff/max_linf);
     if(!not_bound) printf("\033[0;32mPass error check!\033[0m\n");
     else printf("\033[0;31mFail error check! Exceeding data count: %d\033[0m\n", not_bound);
 
