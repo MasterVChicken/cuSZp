@@ -299,11 +299,15 @@ int main(int argc, char* argv[])
     if(dataType == CUSZP_TYPE_FLOAT) {
         printf("cuSZp compression   end-to-end speed: %f GB/s\n", (nbEle*sizeof(float)/1024.0/1024.0)/cmpTime);
         printf("cuSZp decompression end-to-end speed: %f GB/s\n", (nbEle*sizeof(float)/1024.0/1024.0)/decTime);
+        printf("cuSZp compression   end-to-end time: %f s\n", cmpTime);
+        printf("cuSZp decompression end-to-end time: %f s\n", decTime);
         printf("cuSZp compression ratio: %f\n\n", (nbEle*sizeof(float)/1024.0/1024.0)/(cmpSize*sizeof(unsigned char)/1024.0/1024.0));
     }
     else if(dataType == CUSZP_TYPE_DOUBLE) {
         printf("cuSZp compression   end-to-end speed: %f GB/s\n", (nbEle*sizeof(double)/1024.0/1024.0)/cmpTime);
         printf("cuSZp decompression end-to-end speed: %f GB/s\n", (nbEle*sizeof(double)/1024.0/1024.0)/decTime);
+        printf("cuSZp compression   end-to-end time: %f s\n", cmpTime);
+        printf("cuSZp decompression end-to-end time: %f s\n", decTime);
         printf("cuSZp compression ratio: %f\n\n", (nbEle*sizeof(double)/1024.0/1024.0)/(cmpSize*sizeof(unsigned char)/1024.0/1024.0));
     }
 
