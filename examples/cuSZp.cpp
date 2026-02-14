@@ -175,14 +175,14 @@ int main(int argc, char* argv[])
         }
 
         // Calculate L-INF
-        float* oriData_f32 = (float*)oriData;
-        float max_val = oriData_f32[0];
-        float min_val = oriData_f32[0];
+        float* oriData_f32_test = (float*)oriData;
+        float max_val = oriData_f32_test[0];
+        float min_val = oriData_f32_test[0];
         for(size_t i=0; i<nbEle; i++) {
-            if(oriData_f32[i]>max_val)
-                max_val = oriData_f32[i];
-            else if(oriData_f32[i]<min_val)
-                min_val = oriData_f32[i];
+            if(oriData_f32_test[i]>max_val)
+                max_val = oriData_f32_test[i];
+            else if(oriData_f32_test[i]<min_val)
+                min_val = oriData_f32_test[i];
         }
         if(fabs(max_val)>fabs(min_val)){
             max_linf = fabs(max_val);
@@ -214,14 +214,14 @@ int main(int argc, char* argv[])
         }
 
         // Calculate L-INF
-        float* oriData_f64 = (float*)oriData;
-        float max_val = oriData_f64[0];
-        float min_val = oriData_f64[0];
+        double* oriData_f64_test = (double*)oriData;
+        double max_val = oriData_f64_test[0];
+        double min_val = oriData_f64_test[0];
         for(size_t i=0; i<nbEle; i++) {
-            if(oriData_f64[i]>max_val)
-                max_val = oriData_f64[i];
-            else if(oriData_f64[i]<min_val)
-                min_val = oriData_f64[i];
+            if(oriData_f64_test[i]>max_val)
+                max_val = oriData_f64_test[i];
+            else if(oriData_f64_test[i]<min_val)
+                min_val = oriData_f64_test[i];
         }
         if(fabs(max_val)>fabs(min_val)){
             max_linf = fabs(max_val);
@@ -345,7 +345,9 @@ int main(int argc, char* argv[])
             }
         }
     }
-    printf("L-INF relative error: %f\n", max_diff/max_linf);
+    printf("MAX DIFF: %.10e\n", max_diff);
+    printf("MAX L_INF NORM: %.10e\n", max_linf);
+    printf("L-INF relative error: %.10e\n", max_diff/max_linf);
     if(!not_bound) printf("\033[0;32mPass error check!\033[0m\n");
     else printf("\033[0;31mFail error check! Exceeding data count: %d\033[0m\n", not_bound);
 
